@@ -3,23 +3,21 @@ package com.github.tvbox.osc.player.controller;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.base.App;
+// import com.github.tvbox.osc.base.App;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * 直播控制器
  */
-
 public class LiveController extends BaseController {
+    private static final int MIN_FLING_DISTANCE = 100; // 最小识别滑动距离
+    private static final int MIN_FLING_VELOCITY = 10;  // 最小识别滑动速度
+
     protected ProgressBar mLoading;
-    private int minFlingDistance = 100;             //最小识别距离
-    private int minFlingVelocity = 10;              //最小识别速度
+    private LiveControlListener listener;
 
     public LiveController(@NotNull Context context) {
         super(context);
@@ -46,40 +44,58 @@ public class LiveController extends BaseController {
         void changeSource(int direction);
     }
 
-    private LiveController.LiveControlListener listener = null;
-
-    public void setListener(LiveController.LiveControlListener listener) {
+    public void setListener(LiveControlListener listener) {
         this.listener = listener;
     }
 
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
-        if (listener.singleTap())
+        if (listener != null && listener.singleTap()) {
             return true;
+        }
         return super.onSingleTapConfirmed(e);
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
-        listener.longPress();
+        if (listener != null) {
+            listener.longPress();
+        }
         super.onLongPress(e);
     }
 
     @Override
     protected void onPlayStateChanged(int playState) {
         super.onPlayStateChanged(playState);
-        listener.playStateChanged(playState);
+        if (listener != null) {
+            listener.playStateChanged(playState);
+        }
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if (e1.getX() - e2.getX() > minFlingDistance && Math.abs(velocityX) > minFlingVelocity) {
-            listener.changeSource(-1);          //左滑
-        } else if (e2.getX() - e1.getX() > minFlingDistance && Math.abs(velocityX) > minFlingVelocity) {
-            listener.changeSource(1);           //右滑
-        } else if (e1.getY() - e2.getY() > minFlingDistance && Math.abs(velocityY) > minFlingVelocity) {
-        } else if (e2.getY() - e1.getY() > minFlingDistance && Math.abs(velocityY) > minFlingVelocity) {
+        if (e1 == null || e2 == null) return false; // 避免空指针异常
+
+        float deltaX = e2.getX() - e1.getX();
+        float deltaY = e2.getY() - e1.getY();
+
+        if (Math.abs(deltaX) > MIN_FLING_DISTANCE && Math.abs(velocityX) > MIN_FLING_VELOCITY) {
+            if (deltaX > 0) {
+                // 右滑
+                if (listener != null) listener.changeSource(1);
+            } else {
+                // 左滑
+                if (listener != null) listener.changeSource(-1);
+            }
+            return true;
         }
+
+        // 预留上下滑动逻辑（如果需要可以扩展）
+        if (Math.abs(deltaY) > MIN_FLING_DISTANCE && Math.abs(velocityY) > MIN_FLING_VELOCITY) {
+            // 可以在这里添加上下滑动的逻辑
+            return true;
+        }
+
         return false;
     }
 }

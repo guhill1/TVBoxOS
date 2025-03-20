@@ -9,8 +9,6 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.bean.LiveChannelGroup;
 
 import java.util.ArrayList;
-
-
 /**
  * @author pj567
  * @date :2021/1/12
@@ -29,9 +27,14 @@ public class LiveChannelGroupAdapter extends BaseQuickAdapter<LiveChannelGroup, 
         TextView tvGroupName = holder.getView(R.id.tvChannelGroupName);
         tvGroupName.setText(item.getGroupName());
         int groupIndex = item.getGroupIndex();
-        if (groupIndex == selectedGroupIndex && groupIndex != focusedGroupIndex) {
-            tvGroupName.setTextColor(mContext.getResources().getColor(R.color.color_1890FF));
-        } else {
+
+        //  渲染焦点和选中状态
+        if (groupIndex == selectedGroupIndex && groupIndex == focusedGroupIndex) {
+            tvGroupName.setTextColor(mContext.getResources().getColor(R.color.color_FF0000));
+        }
+        else if (groupIndex == selectedGroupIndex) {
+            tvGroupName.setTextColor(mContext.getResources().getColor(R.color.color_FF0000));
+        }else {
             tvGroupName.setTextColor(Color.WHITE);
         }
     }
@@ -56,5 +59,8 @@ public class LiveChannelGroupAdapter extends BaseQuickAdapter<LiveChannelGroup, 
             notifyItemChanged(this.focusedGroupIndex);
         else if (this.selectedGroupIndex != -1)
             notifyItemChanged(this.selectedGroupIndex);
+    }
+    public int getFocusedGroupIndex() {
+        return this.focusedGroupIndex; // 返回当前焦点所在的组索引
     }
 }

@@ -37,14 +37,14 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, Ba
 
         int channelIndex = item.getChannelIndex();
 
-        // ✅ 渲染焦点和选中状态
+        //  渲染焦点和选中状态
         if (channelIndex == selectedChannelIndex) {
             if (channelIndex == focusedChannelIndex) {
                 tvChannelNum.setTextColor(mContext.getResources().getColor(R.color.color_FF0000)); // 红色表示焦点
                 tvChannel.setTextColor(mContext.getResources().getColor(R.color.color_FF0000));
             } else {
                 tvChannelNum.setTextColor(mContext.getResources().getColor(R.color.color_1890FF)); // 蓝色表示选中
-                tvChannel.setTextColor(mContext.getResources().getColor(R.color.color_1890FF));
+                tvChannel.setTextColor(mContext.getResources().getColor(R.color.color_0CADE2));
             }
         } else {
             tvChannelNum.setTextColor(Color.WHITE);
@@ -52,7 +52,7 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, Ba
         }
     }
 
-    // ✅ 设置选中状态
+    //  设置选中状态
     public void setSelectedChannelIndex(int selectedChannelIndex) {
         if (selectedChannelIndex == this.selectedChannelIndex) return;
 
@@ -67,7 +67,7 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, Ba
         }
     }
 
-    // ✅ 设置焦点状态
+    //  设置焦点状态
     public void setFocusedChannelIndex(int focusedChannelIndex) {
         int preFocusedChannelIndex = this.focusedChannelIndex;
         this.focusedChannelIndex = focusedChannelIndex;
@@ -82,12 +82,12 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, Ba
         }
     }
 
-    // ✅ 新增：获取当前选中的频道索引
+    // 新增：获取当前选中的频道索引
     public int getSelectedChannelIndex() {
         return selectedChannelIndex;
     }
 
-    // ✅ 新增：获取当前焦点索引
+    // 新增：获取当前焦点索引
     public int getFocusedChannelIndex() {
         return focusedChannelIndex;
     }
