@@ -33,7 +33,7 @@ public class LiveController extends BaseController {
     @Override
     protected void initView() {
         super.initView();
-        mLoading = findViewById(xyz.doikki.videocontroller.R.id.loading);
+        mLoading = findViewById(R.id.loading_progress);
     }
 
     public interface LiveControlListener {
