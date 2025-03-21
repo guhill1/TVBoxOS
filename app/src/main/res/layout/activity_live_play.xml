@@ -57,6 +57,7 @@
 
 				<com.owen.tvrecyclerview.widget.TvRecyclerView
 					android:id="@+id/mGroupGridView"
+					android:focusable="true"
 					android:layout_width="@dimen/vs_240"
 					android:layout_height="wrap_content"
 					android:divider="@null"

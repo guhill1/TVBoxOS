@@ -9,6 +9,8 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.bean.LiveChannelItem;
 
 import java.util.ArrayList;
+import java.util.List;
+import android.util.Log;
 
 /**
  * @author pj567
@@ -31,6 +33,10 @@ public class LiveChannelItemAdapter extends BaseQuickAdapter<LiveChannelItem, Ba
     protected void convert(BaseViewHolder holder, LiveChannelItem item) {
         TextView tvChannelNum = holder.getView(R.id.tvChannelNum);
         TextView tvChannel = holder.getView(R.id.tvChannelName);
+
+        // 让每个元素都可以接收焦点
+        //tvChannelNum.setFocusableInTouchMode(true);
+        tvChannel.setFocusableInTouchMode(true);
 
         tvChannelNum.setText(String.format("%s", item.getChannelNum()));
         tvChannel.setText(item.getChannelName());

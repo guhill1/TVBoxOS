@@ -1590,13 +1590,20 @@ public class LivePlayActivity extends BaseActivity {
             @Override
             public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
                 // 这里是分组拖放以后点击出错的关键
-                //  selectChannelGroup(position, true, -1);
-                // 设置选中项的背景颜色为蓝色
-                itemView.setBackgroundColor(Color.parseColor("#0CADE2"));
+                //使用 post() 让 notifyItemChanged() 等方法延迟执行
+                itemView.post(() -> {
+                    itemView.setBackgroundColor(Color.parseColor("#0CADE2"));
+                    selectChannelGroup(position, true, -1);
+
+//                    // 给 item 设置焦点，确保它能响应触摸事件
+//                    itemView.setFocusableInTouchMode(true); // 允许触摸模式下获得焦点
+//                    itemView.requestFocus(); // 请求焦点
+                });
             }
 
             @Override
             public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+                Log.d("onItemClick", "Item clicked at position: " + position);  // 添加日志
                 if (isNeedInputPassword(position)) {
                     showPasswordDialog(position, -1);
                 }
@@ -1621,10 +1628,10 @@ public class LivePlayActivity extends BaseActivity {
         mLastChannelGroupIndex = groupIndex;
 
         //  切换组前，清除频道状态，防止焦点冲突
-        if (liveChannelItemAdapter.getSelectedChannelIndex() != -1) {
-            liveChannelItemAdapter.setSelectedChannelIndex(-1);
-            liveChannelItemAdapter.setFocusedChannelIndex(-1);
-        }
+//        if (liveChannelItemAdapter.getSelectedChannelIndex() != -1) {
+//            liveChannelItemAdapter.setSelectedChannelIndex(-1);
+//            liveChannelItemAdapter.setFocusedChannelIndex(-1);
+//        }
 
         if (focus) {
             liveChannelGroupAdapter.setFocusedGroupIndex(groupIndex);
