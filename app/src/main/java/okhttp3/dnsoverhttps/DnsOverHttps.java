@@ -257,11 +257,12 @@ public class DnsOverHttps implements Dns {
         unknownHostException.initCause(failure);
 
         for (int i = 1; i < failures.size(); i++) {
-            Util.addSuppressedIfPossible(unknownHostException, failures.get(i));
+            unknownHostException.addSuppressed(failures.get(i));
         }
 
         throw unknownHostException;
     }
+
 
     private @Nullable
     Response getCacheOnlyResponse(Request request) {
@@ -285,7 +286,7 @@ public class DnsOverHttps implements Dns {
 
     private List<InetAddress> readResponse(String hostname, Response response) throws Exception {
         if (response.cacheResponse() == null && response.protocol() != Protocol.HTTP_2) {
-            Platform.get().log(Platform.WARN, "Incorrect protocol: " + response.protocol(), null);
+            Platform.get().log("Incorrect protocol: " + response.protocol(), Platform.WARN, null);
         }
 
         try {
@@ -329,7 +330,9 @@ public class DnsOverHttps implements Dns {
     }
 
     static boolean isPrivateHost(String host) {
-        return PublicSuffixDatabase.get().getEffectiveTldPlusOne(host) == null;
+        // 使用 OkHttp 的 PublicSuffixDatabase 类
+        PublicSuffixDatabase database = new PublicSuffixDatabase();
+        return database.getEffectiveTldPlusOne(host) == null;
     }
 
     public static final class Builder {

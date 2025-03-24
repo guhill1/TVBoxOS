@@ -3,6 +3,7 @@ package com.github.tvbox.osc.util;
 import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
@@ -43,9 +44,10 @@ import okhttp3.Dns;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.dnsoverhttps.DnsOverHttps;
-import okhttp3.internal.Version;
+//import okhttp3.internal.Version;
 import xyz.doikki.videoplayer.exo.ExoMediaSourceHelper;
-
+import androidx.media3.common.util.UnstableApi;
+import androidx.annotation.OptIn;
 
 public class OkGoHelper {
     public static final long DEFAULT_MILLISECONDS = 10000;      //默认的超时时间
@@ -57,7 +59,7 @@ public class OkGoHelper {
             + "{\"name\": \"360\", \"url\": \"https://doh.360.cn/dns-query\"}"
             + "]";
     static OkHttpClient ItvClient = null;
-    static void initExoOkHttpClient() {
+    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class) static void initExoOkHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("OkExoPlayer");
 
@@ -307,7 +309,8 @@ public class OkGoHelper {
             th.printStackTrace();
         }
 
-        HttpHeaders.setUserAgent(Version.userAgent());
+        //HttpHeaders.setUserAgent(Version.userAgent());
+        HttpHeaders.setUserAgent("okhttp/4.9.0");
 
         OkHttpClient okHttpClient = builder.build();
         OkGo.getInstance().setOkHttpClient(okHttpClient);

@@ -1,6 +1,6 @@
 package com.github.tvbox.osc.util;
 
-import com.google.android.exoplayer2.util.UriUtil;
+import android.net.Uri;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 /**
  * @author asdfgh、FongMi
@@ -46,8 +45,9 @@ public class M3u8 {
             }
             totalTimes += entry.getValue();
         }
-        return  maxTimes*1.0 / (totalTimes*1.0);
+        return  maxTimes * 1.0 / totalTimes;
     }
+
     /**
      * @author asdfgh
      * <a href="https://github.com/asdfgh"> asdfgh </a>
@@ -77,7 +77,7 @@ public class M3u8 {
         }
         if (preUrlMap.size() <= 1) return null;
         if (maxPercent(preUrlMap) < 0.8) {
-            //尝试判断域名，取同域名最多的链接，其它域名当作广告去除
+            // 尝试判断域名，取同域名最多的链接，其它域名当作广告去除
             preUrlMap.clear();
             for (String line : lines) {
                 if (line.length() == 0 || line.charAt(0) == '#') {
@@ -86,7 +86,7 @@ public class M3u8 {
                 if (!line.startsWith("http://") && !line.startsWith("https://")) {
                     return null;
                 }
-                int ifirst = line.indexOf('/', 9);//skip http:// or https://
+                int ifirst = line.indexOf('/', 9); // skip http:// or https://
                 if (ifirst <= 0) {
                     continue;
                 }
@@ -100,7 +100,7 @@ public class M3u8 {
             }
             if (preUrlMap.size() <= 1) return null;
             if (maxPercent(preUrlMap) < 0.8) {
-                return null; //视频非广告片断占比不够大
+                return null; // 视频非广告片断占比不够大
             }
         }
         int maxTimes = 0;
@@ -127,7 +127,7 @@ public class M3u8 {
                     if (!keyUrl.startsWith("http://") && !keyUrl.startsWith("https://")) {
                         String newKeyUrl;
                         if (keyUrl.charAt(0) == '/') {
-                            int ifirst = tsUrlPre.indexOf('/', 9);//skip https://, http://
+                            int ifirst = tsUrlPre.indexOf('/', 9); // skip https://, http://
                             newKeyUrl = tsUrlPre.substring(0, ifirst) + keyUrl;
                         } else
                             newKeyUrl = tsUrlPre + keyUrl;
@@ -142,7 +142,7 @@ public class M3u8 {
             if (lines[i].startsWith(maxTimesPreUrl)) {
                 if (!lines[i].startsWith("http://") && !lines[i].startsWith("https://")) {
                     if (lines[i].charAt(0) == '/') {
-                        int ifirst = tsUrlPre.indexOf('/', 9);//skip https://, http://
+                        int ifirst = tsUrlPre.indexOf('/', 9); // skip https://, http://
                         lines[i] = tsUrlPre.substring(0, ifirst) + lines[i];
                     } else
                         lines[i] = tsUrlPre + lines[i];
@@ -215,9 +215,18 @@ public class M3u8 {
         if (line.startsWith(TAG_KEY)) {
             Matcher matcher = REGEX_URI.matcher(line);
             String value = matcher.find() ? matcher.group(1) : null;
-            return value == null ? line : line.replace(value, UriUtil.resolve(base, value));
+            if (value != null) {
+                // 手动拼接 URL 来代替 resolve()
+                Uri baseUri = android.net.Uri.parse(base);
+                Uri valueUri = android.net.Uri.parse(value);
+                return line.replace(value, baseUri.buildUpon().encodedPath(valueUri.getPath()).build().toString());
+            }
         } else {
-            return UriUtil.resolve(base, line);
+            // 手动拼接 URL 来代替 resolve()
+            Uri baseUri = android.net.Uri.parse(base);
+            Uri valueUri = android.net.Uri.parse(line);
+            return baseUri.buildUpon().encodedPath(valueUri.getPath()).build().toString();
         }
+        return line;
     }
 }

@@ -4,33 +4,45 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
-import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
-import com.google.android.exoplayer2.ext.rtmp.RtmpDataSourceFactory;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.rtsp.RtspMediaSource;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.Cache;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
-import com.google.android.exoplayer2.upstream.cache.SimpleCache;
-import com.google.android.exoplayer2.util.Util;
+import androidx.annotation.OptIn;
+import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.database.ExoDatabaseProvider;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.cache.CacheDataSource;
+import androidx.media3.datasource.cache.NoOpCacheEvictor;
+import androidx.media3.datasource.cache.SimpleCache;
+import androidx.media3.datasource.okhttp.OkHttpDataSource;
+import androidx.media3.datasource.rtmp.RtmpDataSourceFactory;
+import androidx.media3.exoplayer.dash.DashMediaSource;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
+import androidx.media3.exoplayer.rtsp.RtspMediaSource;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.datasource.DefaultDataSourceFactory;
+//import androidx.media3.exoplayer.source.dash.DashMediaSource;
+//import androidx.media3.exoplayer.source.hls.HlsMediaSource;
+//import androidx.media3.exoplayer.source.progressive.ProgressiveMediaSource;
+//import androidx.media3.exoplayer.source.rtsp.RtspMediaSource;
+//import androidx.media3.exoplayer.upstream.DataSource;
+//import androidx.media3.exoplayer.upstream.DefaultDataSourceFactory;
+//import androidx.media3.exoplayer.upstream.cache.Cache;
+//import androidx.media3.exoplayer.upstream.cache.CacheDataSource;
+//import androidx.media3.exoplayer.upstream.cache.LeastRecentlyUsedCacheEvictor;
+//import androidx.media3.exoplayer.upstream.cache.SimpleCache;
+import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+
+import okhttp3.Cache;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-
-public final class ExoMediaSourceHelper {
+@UnstableApi public final class ExoMediaSourceHelper {
 
     private static ExoMediaSourceHelper sInstance;
 
@@ -38,9 +50,9 @@ public final class ExoMediaSourceHelper {
     private final Context mAppContext;
     private OkHttpDataSource.Factory mHttpDataSourceFactory;
     private OkHttpClient mOkClient = null;
-    private Cache mCache;
+    private SimpleCache mCache;
 
-    private ExoMediaSourceHelper(Context context) {
+    @OptIn(markerClass = UnstableApi.class) private ExoMediaSourceHelper(Context context) {
         mAppContext = context.getApplicationContext();
         mUserAgent = Util.getUserAgent(mAppContext, mAppContext.getApplicationInfo().name);
     }
@@ -72,7 +84,7 @@ public final class ExoMediaSourceHelper {
         return getMediaSource(uri, null, isCache);
     }
 
-    public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
+    @OptIn(markerClass = UnstableApi.class) public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
         Uri contentUri = Uri.parse(uri);
         if ("rtmp".equals(contentUri.getScheme())) {
             return new ProgressiveMediaSource.Factory(new RtmpDataSourceFactory(null))
@@ -101,7 +113,7 @@ public final class ExoMediaSourceHelper {
         }
     }
 
-    private int inferContentType(String fileName) {
+    @OptIn(markerClass = UnstableApi.class) private int inferContentType(String fileName) {
         fileName = fileName.toLowerCase();
         if (fileName.contains(".mpd") || fileName.contains("type=mpd")) {
             return C.TYPE_DASH;
@@ -112,9 +124,10 @@ public final class ExoMediaSourceHelper {
         }
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private DataSource.Factory getCacheDataSourceFactory() {
         if (mCache == null) {
-            mCache = newCache();
+            mCache = newSimpleCache(); // 假设有一个方法来创建 SimpleCache 实例
         }
         return new CacheDataSource.Factory()
                 .setCache(mCache)
@@ -122,19 +135,30 @@ public final class ExoMediaSourceHelper {
                 .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
     }
 
-    private Cache newCache() {
-        return new SimpleCache(
-                new File(mAppContext.getExternalCacheDir(), "exo-video-cache"),//缓存目录
-                new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024),//缓存大小，默认512M，使用LRU算法实现
-                new ExoDatabaseProvider(mAppContext));
+    @OptIn(markerClass = UnstableApi.class) private SimpleCache newSimpleCache() {
+        // 这里假设你已经有了一个 File 对象来存储缓存数据
+        Context context = null;
+        File cacheDir = new File(context.getCacheDir(), "media_cache");
+        long maxFileSize = 1024 * 1024 * 10; // 10 MB
+        long maxCacheSize = 1024 * 1024 * 50; // 50 MB
+        return new SimpleCache(cacheDir, new NoOpCacheEvictor(), new ExoDatabaseProvider(context));
     }
+
+
+
+//    @OptIn(markerClass = UnstableApi.class) private Cache newCache() {
+//        return new SimpleCache(
+//                new File(mAppContext.getExternalCacheDir(), "exo-video-cache"), //缓存目录
+//                new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024), //缓存大小，默认512M，使用LRU算法实现
+//                new ExoDatabaseProvider(mAppContext));
+//    }
 
     /**
      * Returns a new DataSource factory.
      *
      * @return A new DataSource factory.
      */
-    private DataSource.Factory getDataSourceFactory() {
+    @OptIn(markerClass = UnstableApi.class) private DataSource.Factory getDataSourceFactory() {
         return new DefaultDataSourceFactory(mAppContext, getHttpDataSourceFactory());
     }
 
@@ -143,11 +167,10 @@ public final class ExoMediaSourceHelper {
      *
      * @return A new HttpDataSource factory.
      */
-    private DataSource.Factory getHttpDataSourceFactory() {
+    @OptIn(markerClass = UnstableApi.class) private DataSource.Factory getHttpDataSourceFactory() {
         if (mHttpDataSourceFactory == null) {
             mHttpDataSourceFactory = new OkHttpDataSource.Factory((Call.Factory) mOkClient)
-                    .setUserAgent(mUserAgent)/*
-                    .setAllowCrossProtocolRedirects(true)*/;
+                    .setUserAgent(mUserAgent);
         }
         return mHttpDataSourceFactory;
     }
@@ -178,7 +201,7 @@ public final class ExoMediaSourceHelper {
         }
     }
 
-    public void setCache(Cache cache) {
+    public void setCache(SimpleCache cache) {
         this.mCache = cache;
     }
 }

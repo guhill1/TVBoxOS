@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import androidx.media3.exoplayer.ExoPlaybackException;
+
 import java.util.Map;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
@@ -45,6 +47,7 @@ public class IjkPlayer extends AbstractPlayer implements IMediaPlayer.OnErrorLis
         mMediaPlayer.setOnVideoSizeChangedListener(this);
         mMediaPlayer.setOnNativeInvokeListener(this);
     }
+
 
 
     @Override
@@ -209,6 +212,15 @@ public class IjkPlayer extends AbstractPlayer implements IMediaPlayer.OnErrorLis
     @Override
     public long getTcpSpeed() {
         return mMediaPlayer.getTcpSpeed();
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+        // guhill1
+        // add error process
+        if (mPlayerEventListener != null) {
+            mPlayerEventListener.onError();
+        }
     }
 
     @Override

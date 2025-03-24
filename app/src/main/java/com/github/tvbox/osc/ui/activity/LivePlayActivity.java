@@ -117,15 +117,15 @@ public class LivePlayActivity extends BaseActivity {
     private List<LiveSettingGroup> liveSettingGroupList = new ArrayList<>();
 
     public static  int currentChannelGroupIndex = 0;
-    private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
 
-    private List<LiveChannelGroup> liveChannelGroupList = new ArrayList<>();
+    private final List<LiveChannelGroup> liveChannelGroupList = new ArrayList<>();
     private int currentLiveChannelIndex = -1;
     private int currentLiveLookBackIndex = -1;
     private int currentLiveChangeSourceTimes = 0;
     private LiveChannelItem currentLiveChannelItem = null;
-    private LivePlayerManager livePlayerManager = new LivePlayerManager();
-    private ArrayList<Integer> channelGroupPasswordConfirmed = new ArrayList<>();
+    private final LivePlayerManager livePlayerManager = new LivePlayerManager();
+    private final ArrayList<Integer> channelGroupPasswordConfirmed = new ArrayList<>();
 
 //EPG   by 龍
     private static LiveChannelItem  channel_Name = null;
@@ -192,7 +192,7 @@ public class LivePlayActivity extends BaseActivity {
     private View iv_playpause;
     private View iv_play;
     private  boolean show = false;
-    private static final int postTimeout = 6000;
+    private static final int postTimeout = 60000;
 
     // 遥控器数字键输入的要切换的频道号码
     private int selectedChannelNumber = 0;
@@ -209,7 +209,7 @@ public class LivePlayActivity extends BaseActivity {
         context = this;
         epgStringAddress = Hawk.get(HawkConfig.EPG_URL,"");
         if(epgStringAddress == null || epgStringAddress.length()<5)
-            epgStringAddress = "http://epg.51zmt.top:8000/api/diyp/";
+            epgStringAddress = "https://epg.112114.xyz/";
 
         setLoadSir(findViewById(R.id.live_root));
         mVideoView = findViewById(R.id.mVideoView);
@@ -248,7 +248,7 @@ public class LivePlayActivity extends BaseActivity {
         divEpg = (LinearLayout) findViewById(R.id.divEPG);
         //右上角图片旋转
         objectAnimator = ObjectAnimator.ofFloat(iv_circle_bg,"rotation", 360.0f);
-        objectAnimator.setDuration(postTimeout);
+        objectAnimator.setDuration(postTimeout/8);
         objectAnimator.setRepeatCount(-1);
         objectAnimator.start();
 
@@ -541,7 +541,7 @@ public class LivePlayActivity extends BaseActivity {
             if(!tip_epg1.getText().equals("暂无信息")){
                 ll_right_top_loading.setVisibility(View.VISIBLE);
                 ll_epg.setVisibility(View.VISIBLE);
-                countDownTimer = new CountDownTimer(postTimeout, 1000) {//底部epg隐藏时间设定
+                countDownTimer = new CountDownTimer(postTimeout/8, 1000) {//底部epg隐藏时间设定
                     public void onTick(long j) {
                     }
                     public void onFinish() {
@@ -824,18 +824,11 @@ public class LivePlayActivity extends BaseActivity {
         liveChannelItemAdapter.setNewData(newChannels);
     }
 
-    // 对比两个列表内容是否相同
+    // guhill1
     private boolean isSameData(List<LiveChannelItem> list1, List<LiveChannelItem> list2) {
-//        return list1.size() == list2.size();
-        if (list1 == list2) return true;
-        if (list1 == null || list2 == null || list1.size() != list2.size()) return false;
-        for (int i = 0; i < list1.size(); i++) {
-            if (!list1.get(i).equals(list2.get(i))) {
-                return false;
-            }
-        }
-        return true;
+        return Objects.equals(list1, list2) || (list1 != null && list1.equals(list2));
     }
+
 
     private Runnable mFocusCurrentChannelAndShowChannelList = new Runnable() {
         @Override
@@ -1513,11 +1506,18 @@ public class LivePlayActivity extends BaseActivity {
 
             @Override
             public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
-                selectChannelGroup(position, true, -1);
+
+                // guhill1
+                // Use post() to delay the execution of methods like notifyItemChanged()
+                itemView.post(() -> {
+                    selectChannelGroup(position, true, -1);
+                });
             }
 
             @Override
             public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+                // guhill1
+                // 此段目前永远不会被执行到
                 if (isNeedInputPassword(position)) {
                     showPasswordDialog(position, -1);
                 }

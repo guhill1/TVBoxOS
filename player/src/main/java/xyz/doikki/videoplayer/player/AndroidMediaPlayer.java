@@ -9,6 +9,8 @@ import android.os.Build;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import androidx.media3.exoplayer.ExoPlaybackException;
+
 import java.util.Map;
 
 import xyz.doikki.videoplayer.util.PlayerUtils;
@@ -219,6 +221,11 @@ public class AndroidMediaPlayer extends AbstractPlayer implements MediaPlayer.On
     @Override
     public long getTcpSpeed() {
         return PlayerUtils.getNetSpeed(mAppContext);        
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+
     }
 
     @Override

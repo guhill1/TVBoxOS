@@ -30,14 +30,16 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"> <!-- 添加存储许可 -->
 
+        <!-- add android:exported="true" -->
         <activity
             android:name=".ui.activity.HomeActivity"
-            android:screenOrientation="sensorLandscape">
+            android:screenOrientation="sensorLandscape"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
@@ -45,40 +47,56 @@
 
         <activity
             android:name=".ui.activity.LivePlayActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.DetailActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.PlayActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.PushActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.SearchActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.FastSearchActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.SettingActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.HistoryActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
         <activity
             android:name=".ui.activity.CollectActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape"
+            android:exported="false"/>
 
-        <receiver android:name=".receiver.SearchReceiver">
+        <!-- add android:exported="false" -->
+        <receiver
+            android:name=".receiver.SearchReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.content.movie.search.Action" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.CustomWebReceiver">
+
+        <!-- add android:exported="false" -->
+        <receiver
+            android:name=".receiver.CustomWebReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.content.movie.custom.web.Action" />
             </intent-filter>
@@ -107,6 +125,11 @@
         <meta-data
             android:name="xwalk_verify"
             android:value="disable" />
-    </application>
 
+        <!-- 添加 Scoped Storage 配置 -->
+        <meta-data
+            android:name="ScopedStorage"
+            android:value="true" />
+
+    </application>
 </manifest>

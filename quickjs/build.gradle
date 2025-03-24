@@ -4,11 +4,12 @@ plugins {
 
 android {
 //    ndkPath = "D:\\Android\\NDK\\android-ndk-r23b\\"
-    compileSdkVersion 30
+    compileSdkVersion 35
+    namespace 'com.github.tvbox.quickjs'
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion 21
+        targetSdkVersion 35
         externalNativeBuild {
             cmake {
                 abiFilters 'armeabi-v7a'
@@ -17,7 +18,7 @@ android {
     }
 
     buildTypes {
-        all {
+        configureEach {
             ndk {
                 abiFilters 'armeabi-v7a'
             }

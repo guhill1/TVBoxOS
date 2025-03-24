@@ -1,38 +1,6 @@
-<<<<<<<<<<<<<<json接口示例>>>>>>>>>>>>>
-# TVBox
-
-=== Source Code - Editing the app default settings ===
-
-    //searchable:搜索开关	        0:关闭 1:启用
-    //filterable:首页可选	        0:否 1:是
-    //playerType:播放器类型	        0:系统 1:IJK 2:EXO
-    //采集接口类型		        0:xml 1:json 3:jar 4:remote
-    //parses解析类型		        0:嗅探,自带播放器 1:解析,返回直链
-    //直播参数说明                   ua:用户自定义ua epg:节目网址 logo:台标网址
-    
-    {
-	"spider": "./your.jar",
-	"wallpaper": "./api/img",
-	"sites": [],
-	"parses": [],
-	"hosts": [
-		"cache.ott.ystenlive.itv.cmvideo.cn=base-v4-free-mghy.e.cdn.chinamobile.com",
-		"cache.ott.bestlive.itv.cmvideo.cn=ip"
-	],
-	"lives": [],
-	"rules": [],
-	"doh": [
-		{
-			"name": "騰訊",
-			"url": "https://doh.pub/dns-query"
-		},
-		{
-			"name": "阿里",
-			"url": "https://dns.alidns.com/dns-query"
-		},
-		{
-			"name": "360",
-			"url": "https://doh.360.cn/dns-query"
-		}
-	]
-    }
+# TVBox gtking 专版 (也可能适用其它机型)
+1) 修复TVBox在 gtking (pro) 上飞鼠(鼠标)点击频道,再点击分组闪退的错误(先不移动上下左右箭头).  
+2) 使用 media3-exoplayer 替换 android.exoplayer 相关依赖
+3) 修复拖放分组(到屏幕外),点击频道,再拖放(屏幕外)分组回来,点击分组出错等错误.  
+4) 设置菜单点击为自动激活,调整菜单字体和背景颜色等.  
+5) 其它一些优化修改,其它机型请自行测试.  

@@ -4,6 +4,8 @@ import android.content.res.AssetFileDescriptor;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import androidx.media3.exoplayer.ExoPlaybackException;
+
 import java.util.Map;
 
 /**
@@ -156,6 +158,8 @@ public abstract class AbstractPlayer {
     public void setPlayerEventListener(PlayerEventListener playerEventListener) {
         this.mPlayerEventListener = playerEventListener;
     }
+
+    public abstract void onPlayerError(ExoPlaybackException error);
 
     public interface PlayerEventListener {
 
