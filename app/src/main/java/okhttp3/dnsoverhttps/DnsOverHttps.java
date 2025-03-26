@@ -296,6 +296,7 @@ public class DnsOverHttps implements Dns {
 
             ResponseBody body = response.body();
 
+            assert body != null;
             if (body.contentLength() > MAX_RESPONSE_SIZE) {
                 throw new IOException("response size exceeds limit ("
                         + MAX_RESPONSE_SIZE

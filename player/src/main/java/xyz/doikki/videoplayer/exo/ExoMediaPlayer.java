@@ -5,20 +5,25 @@ import android.content.res.AssetFileDescriptor;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
-import androidx.annotation.OptIn;
+import androidx.annotation.IntDef;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DefaultLoadControl;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.LoadControl;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.RenderersFactory;
-import androidx.media3.exoplayer.SimpleExoPlayer;
+
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
+import androidx.media3.exoplayer.trackselection.MappingTrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 
+import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
 import androidx.media3.exoplayer.util.EventLogger;
 import androidx.media3.common.VideoSize;
 
@@ -31,7 +36,10 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
 @UnstableApi public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
 
     protected Context mAppContext;
-    protected SimpleExoPlayer mInternalPlayer;
+
+    // guhill1
+    protected ExoPlayer mInternalPlayer;
+
     protected MediaSource mMediaSource;
     protected ExoMediaSourceHelper mMediaSourceHelper;
 
@@ -41,6 +49,7 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
 
     private LoadControl mLoadControl;
     private RenderersFactory mRenderersFactory;
+
     private TrackSelector mTrackSelector;
 
     public ExoMediaPlayer(Context context) {
@@ -48,25 +57,38 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
         mMediaSourceHelper = ExoMediaSourceHelper.getInstance(context);
     }
 
-    @OptIn(markerClass = UnstableApi.class) @Override
     public void initPlayer() {
-        mInternalPlayer = new SimpleExoPlayer.Builder(mAppContext)
+        // 使用 DefaultBandwidthMeter.Builder 来构建带宽测量器
+        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(mAppContext)
+                .setClock(Clock.DEFAULT)
+                .build();
+
+        mInternalPlayer = new ExoPlayer.Builder(mAppContext)
+                // 设置渲染器工厂
+                .setRenderersFactory(mRenderersFactory == null ? new DefaultRenderersFactory(mAppContext).setEnableDecoderFallback(true)
+                        .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER) : mRenderersFactory)
+                // 设置轨道选择器
                 .setTrackSelector(mTrackSelector == null ? new DefaultTrackSelector(mAppContext) : mTrackSelector)
+                // 设置媒体源工厂
                 .setMediaSourceFactory(new DefaultMediaSourceFactory(mAppContext))
+                // 设置加载控制器
                 .setLoadControl(mLoadControl == null ? new DefaultLoadControl() : mLoadControl)
+                // 设置带宽计量器
+                .setBandwidthMeter(bandwidthMeter)
+                // 其他分析收集器等配置（如果需要）
                 .build();
 
         setOptions();
 
         // 播放器日志（当开启日志且 mTrackSelector 为 MappingTrackSelector 时）
-        if (VideoViewManager.getConfig().mIsEnableLog && mTrackSelector instanceof DefaultTrackSelector) {
-            mInternalPlayer.addAnalyticsListener(new EventLogger((DefaultTrackSelector) mTrackSelector, "ExoPlayer"));
+        if (VideoViewManager.getConfig().mIsEnableLog && mTrackSelector != null) {
+            mInternalPlayer.addAnalyticsListener(new EventLogger((MappingTrackSelector) mTrackSelector, "ExoPlayer"));
         }
 
         mInternalPlayer.addListener(this);
     }
 
-    @OptIn(markerClass = UnstableApi.class) public void setTrackSelector(TrackSelector trackSelector) {
+    public void setTrackSelector(TrackSelector trackSelector) {
         mTrackSelector = trackSelector;
     }
 
@@ -240,6 +262,7 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
         return PlayerUtils.getNetSpeed(mAppContext);
     }
 
+
     @Override
     public void onPlaybackStateChanged(int playbackState) {
         if (mPlayerEventListener == null) return;
@@ -251,6 +274,7 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
             }
             return;
         }
+
         switch (playbackState) {
             case Player.STATE_BUFFERING:
                 mPlayerEventListener.onInfo(MEDIA_INFO_BUFFERING_START, getBufferedPercentage());
@@ -260,6 +284,9 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
                 break;
             case Player.STATE_ENDED:
                 mPlayerEventListener.onCompletion();
+                break;
+                // guhill1
+            case Player.STATE_IDLE:
                 break;
         }
     }

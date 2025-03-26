@@ -667,7 +667,9 @@ public class HomeActivity extends BaseActivity {
                 @Override
                 public void click(SourceBean value, int pos) {
                     ApiConfig.get().setSourceBean(value);
-                    refreshHome();
+                    // guhill1
+                    //
+                    runOnUiThread(() -> refreshHome());
                 }
                 @Override
                 public String getDisplay(SourceBean val) {

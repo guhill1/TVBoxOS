@@ -9,11 +9,11 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.database.ExoDatabaseProvider;
+import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSourceFactory;
 import androidx.media3.datasource.cache.CacheDataSource;
-import androidx.media3.datasource.cache.NoOpCacheEvictor;
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor;
 import androidx.media3.datasource.cache.SimpleCache;
 import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.datasource.rtmp.RtmpDataSourceFactory;
@@ -75,7 +75,7 @@ public final class ExoMediaSourceHelper {
         return getMediaSource(uri, null, isCache);
     }
 
-    @OptIn(markerClass = UnstableApi.class)
+
     public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
         Uri contentUri = Uri.parse(uri);
         if ("rtmp".equals(contentUri.getScheme())) {
@@ -95,25 +95,25 @@ public final class ExoMediaSourceHelper {
             setHeaders(headers);
         }
         switch (contentType) {
-            case C.TYPE_DASH:
+            case C.CONTENT_TYPE_DASH:
                 return new DashMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(contentUri));
-            case C.TYPE_HLS:
+            case C.CONTENT_TYPE_HLS:
                 return new HlsMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(contentUri));
+            case C.CONTENT_TYPE_OTHER:
             default:
-            case C.TYPE_OTHER:
                 return new ProgressiveMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(contentUri));
         }
     }
 
-    @OptIn(markerClass = UnstableApi.class)
+
     private int inferContentType(String fileName) {
         fileName = fileName.toLowerCase();
         if (fileName.contains(".mpd") || fileName.contains("type=mpd")) {
-            return C.TYPE_DASH;
+            return C.CONTENT_TYPE_DASH;
         } else if (fileName.contains("m3u8")) {
-            return C.TYPE_HLS;
+            return C.CONTENT_TYPE_HLS;
         } else {
-            return C.TYPE_OTHER;
+            return C.CONTENT_TYPE_OTHER;
         }
     }
 
@@ -128,14 +128,14 @@ public final class ExoMediaSourceHelper {
                 .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
     }
 
-    @OptIn(markerClass = UnstableApi.class)
     private SimpleCache newSimpleCache() {
-        // 这里假设已经有了一个 File 对象来存储缓存数据
+        // guhill1
         Context context = null;
-        File cacheDir = new File(context.getCacheDir(), "media_cache");
-        long maxFileSize = 1024 * 1024 * 10; // 10 MB
-        long maxCacheSize = 1024 * 1024 * 50; // 50 MB
-        return new SimpleCache(cacheDir, new NoOpCacheEvictor(), new ExoDatabaseProvider(context));
+        File cacheDir = new File(mAppContext.getExternalCacheDir(), "media_cache");
+
+        return new SimpleCache(cacheDir,
+                new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024),
+                new StandaloneDatabaseProvider(mAppContext));
     }
 
 //    @OptIn(markerClass = UnstableApi.class) private Cache newCache() {
