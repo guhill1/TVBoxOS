@@ -310,7 +310,7 @@ public class OkGoHelper {
         }
 
         //HttpHeaders.setUserAgent(Version.userAgent());
-        HttpHeaders.setUserAgent("okhttp/4.9.0");
+        HttpHeaders.setUserAgent("okhttp/4.12.0");
 
         OkHttpClient okHttpClient = builder.build();
         OkGo.getInstance().setOkHttpClient(okHttpClient);
