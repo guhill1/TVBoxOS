@@ -8,8 +8,10 @@ import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.database.ExoDatabaseProvider;
 import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSourceFactory;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.datasource.cache.NoOpCacheEvictor;
 import androidx.media3.datasource.cache.SimpleCache;
@@ -19,30 +21,18 @@ import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.exoplayer.rtsp.RtspMediaSource;
 import androidx.media3.exoplayer.source.MediaSource;
-import androidx.media3.datasource.DefaultDataSourceFactory;
-//import androidx.media3.exoplayer.source.dash.DashMediaSource;
-//import androidx.media3.exoplayer.source.hls.HlsMediaSource;
-//import androidx.media3.exoplayer.source.progressive.ProgressiveMediaSource;
-//import androidx.media3.exoplayer.source.rtsp.RtspMediaSource;
-//import androidx.media3.exoplayer.upstream.DataSource;
-//import androidx.media3.exoplayer.upstream.DefaultDataSourceFactory;
-//import androidx.media3.exoplayer.upstream.cache.Cache;
-//import androidx.media3.exoplayer.upstream.cache.CacheDataSource;
-//import androidx.media3.exoplayer.upstream.cache.LeastRecentlyUsedCacheEvictor;
-//import androidx.media3.exoplayer.upstream.cache.SimpleCache;
-import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
-
-import okhttp3.Cache;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map;
 
-@UnstableApi public final class ExoMediaSourceHelper {
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+
+@UnstableApi
+public final class ExoMediaSourceHelper {
 
     private static ExoMediaSourceHelper sInstance;
 
@@ -52,7 +42,8 @@ import java.util.Map;
     private OkHttpClient mOkClient = null;
     private SimpleCache mCache;
 
-    @OptIn(markerClass = UnstableApi.class) private ExoMediaSourceHelper(Context context) {
+    @OptIn(markerClass = UnstableApi.class)
+    private ExoMediaSourceHelper(Context context) {
         mAppContext = context.getApplicationContext();
         mUserAgent = Util.getUserAgent(mAppContext, mAppContext.getApplicationInfo().name);
     }
@@ -84,7 +75,8 @@ import java.util.Map;
         return getMediaSource(uri, null, isCache);
     }
 
-    @OptIn(markerClass = UnstableApi.class) public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
+    @OptIn(markerClass = UnstableApi.class)
+    public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
         Uri contentUri = Uri.parse(uri);
         if ("rtmp".equals(contentUri.getScheme())) {
             return new ProgressiveMediaSource.Factory(new RtmpDataSourceFactory(null))
@@ -113,7 +105,8 @@ import java.util.Map;
         }
     }
 
-    @OptIn(markerClass = UnstableApi.class) private int inferContentType(String fileName) {
+    @OptIn(markerClass = UnstableApi.class)
+    private int inferContentType(String fileName) {
         fileName = fileName.toLowerCase();
         if (fileName.contains(".mpd") || fileName.contains("type=mpd")) {
             return C.TYPE_DASH;
@@ -135,16 +128,15 @@ import java.util.Map;
                 .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
     }
 
-    @OptIn(markerClass = UnstableApi.class) private SimpleCache newSimpleCache() {
-        // 这里假设你已经有了一个 File 对象来存储缓存数据
+    @OptIn(markerClass = UnstableApi.class)
+    private SimpleCache newSimpleCache() {
+        // 这里假设已经有了一个 File 对象来存储缓存数据
         Context context = null;
         File cacheDir = new File(context.getCacheDir(), "media_cache");
         long maxFileSize = 1024 * 1024 * 10; // 10 MB
         long maxCacheSize = 1024 * 1024 * 50; // 50 MB
         return new SimpleCache(cacheDir, new NoOpCacheEvictor(), new ExoDatabaseProvider(context));
     }
-
-
 
 //    @OptIn(markerClass = UnstableApi.class) private Cache newCache() {
 //        return new SimpleCache(
@@ -158,7 +150,8 @@ import java.util.Map;
      *
      * @return A new DataSource factory.
      */
-    @OptIn(markerClass = UnstableApi.class) private DataSource.Factory getDataSourceFactory() {
+    @OptIn(markerClass = UnstableApi.class)
+    private DataSource.Factory getDataSourceFactory() {
         return new DefaultDataSourceFactory(mAppContext, getHttpDataSourceFactory());
     }
 
@@ -167,7 +160,8 @@ import java.util.Map;
      *
      * @return A new HttpDataSource factory.
      */
-    @OptIn(markerClass = UnstableApi.class) private DataSource.Factory getHttpDataSourceFactory() {
+    @OptIn(markerClass = UnstableApi.class)
+    private DataSource.Factory getHttpDataSourceFactory() {
         if (mHttpDataSourceFactory == null) {
             mHttpDataSourceFactory = new OkHttpDataSource.Factory((Call.Factory) mOkClient)
                     .setUserAgent(mUserAgent);
