@@ -2031,7 +2031,6 @@ public class LivePlayActivity extends BaseActivity {
         tvRightSettingLayout.setVisibility(View.INVISIBLE);
 
         liveChannelGroupAdapter.setNewData(liveChannelGroupList);
-
         selectChannelGroup(lastChannelGroupIndex, false, lastLiveChannelIndex);
     }
 
