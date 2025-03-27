@@ -668,7 +668,7 @@ public class HomeActivity extends BaseActivity {
                 public void click(SourceBean value, int pos) {
                     ApiConfig.get().setSourceBean(value);
                     // guhill1
-                    //
+                    // 1671 E InputDispatcher: channel '664335d Toast (server)' ~ Channel is unrecoverably broken and will be disposed!
                     runOnUiThread(() -> refreshHome());
                 }
                 @Override
