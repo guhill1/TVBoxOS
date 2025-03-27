@@ -53,5 +53,7 @@ public class HawkConfig {
 
     // guhill1 保存上一次分组
     public static final String LIVE_CHANNEL_GROUP_INDEX = "live_channel_group_index";
+    // guhill1 为每个频道保存上一次源
+    public static final String LIVE_CHANNEL_SOURCE_INDEX_MAP = "live_channel_source_index_map";
     public static boolean hotVodDelete;
 }
