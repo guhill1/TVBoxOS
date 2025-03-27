@@ -75,7 +75,6 @@ public final class ExoMediaSourceHelper {
         return getMediaSource(uri, null, isCache);
     }
 
-
     public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
         Uri contentUri = Uri.parse(uri);
         if ("rtmp".equals(contentUri.getScheme())) {
@@ -105,7 +104,6 @@ public final class ExoMediaSourceHelper {
         }
     }
 
-
     private int inferContentType(String fileName) {
         fileName = fileName.toLowerCase();
         if (fileName.contains(".mpd") || fileName.contains("type=mpd")) {
@@ -117,10 +115,10 @@ public final class ExoMediaSourceHelper {
         }
     }
 
-    @OptIn(markerClass = UnstableApi.class)
     private DataSource.Factory getCacheDataSourceFactory() {
+        // guhill1
         if (mCache == null) {
-            mCache = newSimpleCache(); // 假设有一个方法来创建 SimpleCache 实例
+            mCache = newSimpleCache();
         }
         return new CacheDataSource.Factory()
                 .setCache(mCache)
@@ -131,7 +129,7 @@ public final class ExoMediaSourceHelper {
     private SimpleCache newSimpleCache() {
         // guhill1
         Context context = null;
-        File cacheDir = new File(mAppContext.getExternalCacheDir(), "media_cache");
+        File cacheDir = new File(mAppContext.getExternalCacheDir(), "exo-video-cache");
 
         return new SimpleCache(cacheDir,
                 new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024),

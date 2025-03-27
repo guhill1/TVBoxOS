@@ -804,6 +804,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private int mLastChannelGroupIndex = -1;
+
     private List<LiveChannelItem> mLastChannelList = new ArrayList<>();
 
     private void refreshChannelList(int currentChannelGroupIndex) {
@@ -1535,19 +1536,32 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void selectChannelGroup(int groupIndex, boolean focus, int liveChannelIndex) {
-        mLastChannelGroupIndex=groupIndex;
+        mLastChannelGroupIndex = groupIndex;
+
+        // guhill1
+        // 保存上一次的分组索引到 Hawk
+        Hawk.put(HawkConfig.LIVE_CHANNEL_GROUP_INDEX, groupIndex);
+
         if (focus) {
             liveChannelGroupAdapter.setFocusedGroupIndex(groupIndex);
             liveChannelItemAdapter.setFocusedChannelIndex(-1);
         }
+
+        // 如果选中的分组和当前分组不同，或者需要输入密码
         if ((groupIndex > -1 && groupIndex != liveChannelGroupAdapter.getSelectedGroupIndex()) || isNeedInputPassword(groupIndex)) {
             liveChannelGroupAdapter.setSelectedGroupIndex(groupIndex);
+
+            // 如果需要输入密码，弹出密码对话框
             if (isNeedInputPassword(groupIndex)) {
                 showPasswordDialog(groupIndex, liveChannelIndex);
                 return;
             }
+
+            // 加载频道组数据并播放
             loadChannelGroupDataAndPlay(groupIndex, liveChannelIndex);
         }
+
+        // 如果左侧频道列表可见，设置延时隐藏
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.postDelayed(mHideChannelListRun, postTimeout);
@@ -1901,24 +1915,34 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveState() {
+
         String lastChannelName = Hawk.get(HawkConfig.LIVE_CHANNEL, "");
 
-        int lastChannelGroupIndex = -1;
+        // guhill1:修改每次启动相同频道名称总是匹配第一个分组的逻辑,增加保存分组信息
+        // 从存储中获取上一次的 ChannelGroupIndex 和 LiveChannelIndex
+        int lastChannelGroupIndex = Hawk.get(HawkConfig.LIVE_CHANNEL_GROUP_INDEX, -1); // 从存储中获取之前的 ChannelGroupIndex
         int lastLiveChannelIndex = -1;
-        for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
-            for (LiveChannelItem liveChannelItem : liveChannelGroup.getLiveChannels()) {
-                if (liveChannelItem.getChannelName().equals(lastChannelName)) {
-                    lastChannelGroupIndex = liveChannelGroup.getGroupIndex();
-                    lastLiveChannelIndex = liveChannelItem.getChannelIndex();
-                    break;
+
+        if (lastChannelGroupIndex != -1) {
+
+            if (lastChannelGroupIndex >= 0 && lastChannelGroupIndex < liveChannelGroupList.size()) {
+                LiveChannelGroup liveChannelGroup = liveChannelGroupList.get(lastChannelGroupIndex);
+
+                for (LiveChannelItem liveChannelItem : liveChannelGroup.getLiveChannels()) {
+                    if (liveChannelItem.getChannelName().equals(lastChannelName)) {
+                        lastLiveChannelIndex = liveChannelItem.getChannelIndex();
+                        break;
+                    }
                 }
             }
-            if (lastChannelGroupIndex != -1) break;
         }
-        if (lastChannelGroupIndex == -1) {
+
+        if (lastChannelGroupIndex == -1 || lastLiveChannelIndex == -1) {
+
             lastChannelGroupIndex = getFirstNoPasswordChannelGroup();
-            if (lastChannelGroupIndex == -1)
+            if (lastChannelGroupIndex == -1) {
                 lastChannelGroupIndex = 0;
+            }
             lastLiveChannelIndex = 0;
         }
 
@@ -1929,6 +1953,7 @@ public class LivePlayActivity extends BaseActivity {
         tvRightSettingLayout.setVisibility(View.INVISIBLE);
 
         liveChannelGroupAdapter.setNewData(liveChannelGroupList);
+
         selectChannelGroup(lastChannelGroupIndex, false, lastLiveChannelIndex);
     }
 
@@ -2112,6 +2137,14 @@ public class LivePlayActivity extends BaseActivity {
     private int getFirstNoPasswordChannelGroup() {
         for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
             if (liveChannelGroup.getGroupPassword().isEmpty())
+                return liveChannelGroup.getGroupIndex();
+        }
+        return -1;
+    }
+
+    private int getFirstChannelGroup(String GroupName) {
+        for (LiveChannelGroup liveChannelGroup : liveChannelGroupList) {
+            if (liveChannelGroup.getGroupName().equals(GroupName))
                 return liveChannelGroup.getGroupIndex();
         }
         return -1;
