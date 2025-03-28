@@ -28,7 +28,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.jessyan.autosize.utils.AutoSizeUtils;
 
@@ -84,10 +86,12 @@ public class ApiDialog extends BaseDialog {
                 dismiss();
             }
         });
+
         findViewById(R.id.inputSubmitLive).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String newApi = inputApiLive.getText().toString().trim();
+
                 if (!newApi.isEmpty()) {
                     ArrayList<String> history = Hawk.get(HawkConfig.LIVE_API_HISTORY, new ArrayList<String>());
                     if (!history.contains(newApi)) {
@@ -97,11 +101,19 @@ public class ApiDialog extends BaseDialog {
                         history.remove(30);
                     }
                     Hawk.put(HawkConfig.LIVE_API_HISTORY, history);
+                    Hawk.put(HawkConfig.LIVE_API_URL, newApi);
+
+                    // guhill1
+                    // 获取 sourceIndexMap
+                    Map<Integer, Integer> sourceIndexMap = Hawk.get(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, new HashMap<>());
+                    sourceIndexMap.clear(); // 清空 map 中的所有条目
+                    Hawk.put(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, sourceIndexMap);
                 }
-                Hawk.put(HawkConfig.LIVE_API_URL, newApi);
+
                 dismiss();
             }
         });
+
         findViewById(R.id.apiHistory).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

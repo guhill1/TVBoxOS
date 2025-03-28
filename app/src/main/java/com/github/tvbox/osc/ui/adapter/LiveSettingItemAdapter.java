@@ -25,7 +25,6 @@ public class LiveSettingItemAdapter extends BaseQuickAdapter<LiveSettingItem, Ba
 
     @Override
     protected void convert(BaseViewHolder holder, LiveSettingItem item) {
-
         TextView tvItemName = holder.getView(R.id.tvSettingItemName);
         tvItemName.setText(item.getItemName());
         int itemIndex = item.getItemIndex();
