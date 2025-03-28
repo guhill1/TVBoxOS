@@ -168,14 +168,23 @@ public class ApiConfig {
     }
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
+
         //独立加载直播配置
         String liveApiUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
         String liveApiConfigUrl=configUrl(liveApiUrl);
         if(!liveApiUrl.isEmpty() && !liveApiUrl.equals(apiUrl)){
             if(liveApiUrl.contains(".txt") || liveApiUrl.contains(".m3u") || liveApiUrl.contains("=txt") || liveApiUrl.contains("=m3u")){
                 initLiveSettings();
-                defaultLiveObjString = defaultLiveObjString.replace("txt_m3u_url",liveApiConfigUrl);
+
+                // guhill1
+                // 修改 liveApiUrl 修改以后不能更新分组频道的问题,查找问题5天
+                // defaultLiveObjString = defaultLiveObjString.replace("txt_m3u_url",liveApiConfigUrl);
+                defaultLiveObjString
+                    = defaultLiveObjString.replaceAll
+                    ("\"url\"\\s*:\\s*\"[^\"]*\"",
+                    "\"url\": \"" + liveApiConfigUrl + "\"");
                 parseLiveJson(liveApiUrl,defaultLiveObjString);
+
             }else {
                 File live_cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(liveApiUrl));
                 if (useCache && live_cache.exists()) {
