@@ -176,8 +176,8 @@ public class ApiConfig {
             if(liveApiUrl.contains(".txt") || liveApiUrl.contains(".m3u") || liveApiUrl.contains("=txt") || liveApiUrl.contains("=m3u")){
                 initLiveSettings();
 
-                // guhill1
-                // 修改 liveApiUrl 修改以后不能更新分组频道的问题,查找问题5天
+                // guhill1: Fix the issue where the group and channels
+                // do not update after modifying the liveApiUrl.
                 // defaultLiveObjString = defaultLiveObjString.replace("txt_m3u_url",liveApiConfigUrl);
                 defaultLiveObjString
                     = defaultLiveObjString.replaceAll
