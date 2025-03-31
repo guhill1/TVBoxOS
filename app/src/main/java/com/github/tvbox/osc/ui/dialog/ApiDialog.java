@@ -101,15 +101,20 @@ public class ApiDialog extends BaseDialog {
                         history.remove(30);
                     }
                     Hawk.put(HawkConfig.LIVE_API_HISTORY, history);
-                    Hawk.put(HawkConfig.LIVE_API_URL, newApi);
+                    // Hawk.put(HawkConfig.LIVE_API_URL, newApi);
 
                     // guhill1
-                    // 获取 sourceIndexMap
-                    Map<Integer, Integer> sourceIndexMap = Hawk.get(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, new HashMap<>());
-                    sourceIndexMap.clear(); // 清空 map 中的所有条目
-                    Hawk.put(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, sourceIndexMap);
-                }
+                    // 根据需要清理sourceIndexMap,不相等才清理,增加
+                    String currentApi = Hawk.get(HawkConfig.LIVE_API_URL, "");
+                    if (!newApi.equals(currentApi)) {
+                        inputApiLive.setText(newApi);
+                        Hawk.put(HawkConfig.LIVE_API_URL, newApi);
 
+                        Map<Integer, Integer> sourceIndexMap = Hawk.get(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, new HashMap<>());
+                        sourceIndexMap.clear();
+                        Hawk.put(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, sourceIndexMap);
+                    }
+                }
                 dismiss();
             }
         });
@@ -132,7 +137,9 @@ public class ApiDialog extends BaseDialog {
                     @Override
                     public void click(String value) {
                         inputApiLive.setText(value);
-                        Hawk.put(HawkConfig.LIVE_API_URL, value);
+                        // guhill1
+                        // 移除这里的设置,统一在确定键里面设置
+                        // Hawk.put(HawkConfig.LIVE_API_URL, value);
                         dialog.dismiss();
                     }
 

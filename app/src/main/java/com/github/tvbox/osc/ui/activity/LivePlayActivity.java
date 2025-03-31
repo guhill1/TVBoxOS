@@ -1021,6 +1021,7 @@ public class LivePlayActivity extends BaseActivity {
 
     // guhill1 为每个频道增加保存源的逻辑
     private boolean playChannel(int channelGroupIndex, int liveChannelIndex, boolean changeSource) {
+        // guhill1
         // 获取当前频道组和频道的源索引，确保每个频道组和频道都有独立的源索引
         Map<Integer, Integer> sourceIndexMap = Hawk.get(HawkConfig.LIVE_CHANNEL_SOURCE_INDEX_MAP, new HashMap<>());
 
@@ -1803,6 +1804,7 @@ public class LivePlayActivity extends BaseActivity {
             case 0: // 线路切换
                 currentLiveChannelItem.setSourceIndex(position);
 
+                // guhill1
                 // 使用 Hawk 保存当前频道的源索引，以 channelGroupIndex * 1000 + liveChannelIndex 作为键
                 int channelIndex = currentLiveChannelItem.getChannelIndex();
                 // 生成唯一的键：channelGroupIndex 和 channelIndex 结合
