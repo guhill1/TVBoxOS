@@ -104,7 +104,7 @@ public class ApiDialog extends BaseDialog {
                     // Hawk.put(HawkConfig.LIVE_API_URL, newApi);
 
                     // guhill1
-                    // 根据需要清理sourceIndexMap,不相等才清理,增加
+                    // 根据需要清理sourceIndexMap,不相等才清理,增加liveApiUrl
                     String currentApi = Hawk.get(HawkConfig.LIVE_API_URL, "");
                     if (!newApi.equals(currentApi)) {
                         inputApiLive.setText(newApi);
